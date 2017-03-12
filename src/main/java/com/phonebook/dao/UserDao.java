@@ -12,5 +12,7 @@ import java.util.List;
 //@Repository
 public interface UserDao {
     List<User> getAll();
-
+    void save(User user);
+    User findById(long id);
+    User findByLogin(String login);
 }
