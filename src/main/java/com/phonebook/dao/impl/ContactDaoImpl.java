@@ -2,16 +2,17 @@ package com.phonebook.dao.impl;
 
 import com.phonebook.dao.ContactDao;
 import com.phonebook.entity.Contact;
+import com.phonebook.entity.User;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.persistence.EntityManager;
 import java.io.BufferedWriter;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.util.*;
 
 
@@ -26,12 +27,29 @@ public class ContactDaoImpl implements ContactDao {
 
     @Autowired
     private EntityManager entityManager;
+
     public Contact findById(long id){
         return (Contact) entityManager.createNativeQuery("Select * from Contact where id='"+id+"'", Contact.class).getSingleResult();
     }
-   public List<Contact> findByUser(long userid){
-       return entityManager.createNativeQuery("SELECT * FROM contact where user_id='"+userid+"'", Contact.class).getResultList();
+   public List<Contact> findByUser(long userid, String name, String surname, String phone){
+       String query = ("SELECT * FROM contact where user_id ='"+userid+"'");
+       if (name != null){
+           query += " and name like'%"+name+"%'";
+       }
+       if (surname != null){
+           query += " and surname like'%"+surname+"%'";
+       }
+       if (phone != null){
+           query += " and phonenumber like'%"+phone+"%'";
+       }
+       List<Contact> conts = entityManager.createNativeQuery(query, Contact.class).getResultList();
+       return conts;
    }
+
+    public User findUserBycontact(long id){
+        String userid = (String) entityManager.createNativeQuery("SELECT user_id FROM contact WHERE id = '"+id+"'").getSingleResult();
+        return (User) entityManager.createNativeQuery("SELECT * FROM user WHERE id='"+userid+"'", User.class).getSingleResult();
+    }
 
     @Override
     public void delete(long contactId) {
@@ -40,20 +58,16 @@ public class ContactDaoImpl implements ContactDao {
             entityManager.remove(findById(contactId));
             entityManager.getTransaction().commit();
         }catch (IllegalStateException e) {
-            System.out.println("TRY REMOVE FROM FILE");
-
-            Scanner scanner = new Scanner(path+"/contact.csv");
+            path =datasource.substring(17);
+            Path filepath = Paths.get(path+"/contact.csv");
+            Contact cont = findById(contactId);
+            User user =findUserBycontact(contactId) ;
+            cont.setUser(user);
+            String contact  = contactToString(cont);
             try {
-                BufferedWriter writer = new BufferedWriter(new FileWriter(path+"/contact.csv"));
-//TODO write to file
-               // writer.write(currentLine + System.getProperty("line.separator"));
-
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                if (line.equals(contactToString(findById(contactId)))){
-                   // writer.write();
-                }
-            }
+                String content = new String(Files.readAllBytes(filepath), "UTF-8");
+                content = content.replace(contact,"");
+                Files.write(filepath, content.getBytes("UTF-8"));
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
@@ -63,23 +77,26 @@ public class ContactDaoImpl implements ContactDao {
     }
 
     public Long maxId(){
-        List<Long> ids = (List<Long>)entityManager.createNativeQuery("SELECT id from contact").getResultList();
-        Collections.sort(ids);
+
+        long id = 0;
         try {
-            return ids.get(ids.size());
+            List<String> ids = (List<String>)entityManager.createNativeQuery("SELECT id from contact").getResultList();
+            Collections.sort(ids);
+            id = Long.valueOf(ids.get(ids.size()-1));
         } catch (Exception e){
-            return new Long(0);
+            e.printStackTrace();
         }
+        return id;
     }
 
     public String contactToString(Contact contact) {
         String contactFields=contact.getId()+","
-                +contact.user().getId()+","
+                +contact.getUser().getId()+","
                 +contact.getName()+","
                 +contact.getSurname()+","
                 +contact.getFathername()+","
                 +contact.getPhonenumber()+","
-                +contact.getPhonenumber()+","
+                +contact.getHomenumber()+","
                 +contact.getAdress()+","
                 +contact.getEmail()
                 +"\n";
@@ -93,16 +110,30 @@ public class ContactDaoImpl implements ContactDao {
             entityManager.persist(contact);
             entityManager.getTransaction().commit();
         }catch (IllegalStateException e){
-            if (contact.getId() == 0 || (contact.getId()== null)){
+
+            if (contact.getId()== null || contact.getId() == 0){
                 contact.setId(maxId()+1);
+                try {
+                    String contactFields=contactToString(contact);
+                    Files.write(Paths.get(path + "/contact.csv"), contactFields.getBytes(), StandardOpenOption.APPEND);
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+            else {
+                try {
+                    String contactFields = contactToString(contact);
+                    Path filepath = Paths.get(path + "/contact.csv");
+                    Contact replacecont = findById(contact.getId());
+                    String replace = contactToString(replacecont);
+                    String content = new String(Files.readAllBytes(filepath), "UTF-8");
+                    content = content.replace(replace, contactFields);
+                    Files.write(filepath, content.getBytes("UTF-8"));
+                }catch(IOException e1){
+                    e1.printStackTrace();
+                }
             }
 
-            String contactFields=contactToString(contact);
-            try {
-                Files.write(Paths.get(path+"/contact.csv"), contactFields.getBytes(), StandardOpenOption.APPEND);
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
         }
     }
 }

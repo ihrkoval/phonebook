@@ -9,7 +9,7 @@ import javax.persistence.*;
 public class Contact {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
@@ -22,7 +22,8 @@ public class Contact {
     private String adress; //Адрес (не обязательный)
     private String email; //e-mail (не обязательный, общепринятая валидация)
 
-    public Contact(String name, String surname, String fathername, String phonenumber, String homenumber, String adress, String email, User user) {
+    public Contact(Long id, String name, String surname, String fathername, String phonenumber, String homenumber, String adress, String email, User user) {
+        this.id=id;
         this.name = name;
         this.surname = surname;
         this.fathername = fathername;
@@ -40,11 +41,11 @@ public class Contact {
         return id;
     }
 
-    public User user() {
+    public User getUser() {
         return user;
     }
 
-    public void User(User user) {
+    public void setUser(User user) {
         this.user = user;
     }
 

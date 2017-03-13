@@ -1,6 +1,8 @@
 package com.phonebook.controllers;
 
+import com.phonebook.dao.ContactDao;
 import com.phonebook.dao.UserDao;
+import com.phonebook.entity.Contact;
 import com.phonebook.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -12,6 +14,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.jws.soap.SOAPBinding;
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
+import java.security.Principal;
 
 /**
  * Created by jlab13 on 10.03.2017.
@@ -21,14 +24,29 @@ public class MainController  {
 
     @Autowired
     UserDao userDao;
+    @Autowired
+    ContactDao contactDao;
+
+    @RequestMapping(value ="/edit")
+    public ModelAndView editcontact(@RequestParam(value = "id") long id) {
+        ModelAndView editpage = new ModelAndView("index");
+        Contact c = contactDao.findById(id);
+        User user = contactDao.findUserBycontact(id);
+        editpage.addObject("id", c.getId());
+        editpage.addObject("userid", user.getId());
+        editpage.addObject("name", c.getName());
+        editpage.addObject("surname", c.getSurname());
+        editpage.addObject("fathername", c.getFathername());
+        editpage.addObject("phonenumber", c.getPhonenumber());
+        editpage.addObject("homenumber", c.getHomenumber());
+        editpage.addObject("adress", c.getAdress());
+        editpage.addObject("email", c.getEmail());
+        return editpage;
+    }
 
     @RequestMapping("/")
     public String orders() {
-        System.out.println(userDao.getAll().size() + " ALL SIZEEE");
-       // System.out.println(userDao.findById(1).getName());
-
-        //System.out.println(userRepo.getUsers().get(0).getName());
-        return "index";
+      return "index";
     }
 
     @RequestMapping("/register")
@@ -40,6 +58,8 @@ public class MainController  {
     public String login() {
         return "login";
     }
+
+
 
     @RequestMapping(value="/register" , method = RequestMethod.POST)
     public ModelAndView register(@RequestParam(value = "name") String name,

@@ -10,7 +10,7 @@ import java.util.List;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    private Long id;
     /*
     Логин (только английские символы, не меньше 3х, без спецсимволов)
     Пароль (минимум 5 символов)
@@ -20,7 +20,7 @@ public class User {
     private String password;
     private String name;
 
-    @OneToMany(mappedBy= "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy= "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Contact> contacts;
 
     public User(){}
@@ -31,7 +31,7 @@ public class User {
         this.name = name;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 

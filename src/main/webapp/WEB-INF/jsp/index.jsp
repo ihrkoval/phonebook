@@ -31,25 +31,29 @@
             <div class="panel panel-default">
                 <div class="panel-heading">Добавить контакт</div>
                 <div class="panel-body">
-                    <form enctype="multipart/form-data" action="./contact/add" method="post">
+                    <form action="./contact/add" method="post">
                         <div class="panel panel-default">
                             <div class="col-sm-2">
-                                <input type="text" class="form-control" name="name" placeholder="Имя">
-                                <input type="text" class="form-control" name="surname" placeholder="Фамилия">
-                                <input type="text" class="form-control" name="fathername" placeholder="Отчество">
+                                <input type="hidden" class="form-control" name="id" value="${id}">
+                                <input type="text" class="form-control" name="name" placeholder="Имя" value="${name}">
+                                <input type="text" class="form-control" name="surname" placeholder="Фамилия" value="${surname}">
                             </div>
                             <div class="col-sm-3">
-                                <input type="text" class="form-control" name="phonenumber" placeholder="Номер">
-                                <input type="text" class="form-control" name="homenumber" placeholder="Домашний номер">
-                                <input type="text" class="form-control" name="adress" placeholder="Адрес">
+                                <input type="text" class="form-control" name="fathername" placeholder="Отчество" value="${fathername}">
+                                <input type="text" class="form-control" name="phone" placeholder="Номер" value="${phonenumber}">
                             </div>
                             <div class="col-sm-3">
-                                <input type="text" class="form-control" name="email" placeholder="е-майл">
-                                <button type="submit" class="btn btn-success" value="add">Добавить</button>
+                                <input type="text" class="form-control" name="homenumber" placeholder="Домашний номер" value="${homenumber}">
+                                <input type="text" class="form-control" name="adress" placeholder="Адрес" value="${adress}">
+                                </div>
+                            <div class="col-sm-3">
+                                <input type="text" class="form-control" name="email" placeholder="е-майл" value="${email}">
+                                <button type="submit" class="btn btn-success" href="/index" value="add">Сохранить</button>
                             </div>
                             </div>
-                        </div>
                     </form>
+                        </div>
+
 
 
                 </div>
@@ -61,7 +65,18 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="panel panel-success">
-                <div class="panel-heading">Все контакты</div>
+                <div class="panel-heading">
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control" name="nameF" placeholder="name"/>
+                    </div>
+                    <div class="col-sm-2">
+                    <input type="text" class="form-control" name="surnameF" placeholder="surname"/>
+                        </div>
+                    <div class="col-sm-2">
+                    <input type="text" class="form-control" name="phoneF" placeholder="phone"/>
+                        </div>
+                    <button type="submit" class="btn btn-success" onclick="filter()" value="add">Filter</button>
+                </div>
                 <div class="panel-body">
                     <table class="table table-bordered">
                         <thead>
@@ -90,8 +105,9 @@
 </div>
 </div>
 <script>
-    jQuery(function(){
+    jQuery(function() {
         const tbody = document.getElementById('tbody');
+
         function getAll(callback) {
             jQuery.ajax({
                 url: './contact/all',
@@ -100,7 +116,15 @@
             });
         }
 
+
+
+
+
+
         function renderCont(response) {
+            while (tbody.firstChild) {
+                tbody.removeChild(tbody.firstChild);
+            }
             for (let i = 0; i < response.length; i++) {
                 const item = response[i];
                 var tr = document.createElement("tr");
@@ -155,7 +179,23 @@
 
             }
         }
+        filter =  function() {
+            var name = document.getElementsByName("nameF")[0].value;
+            var surname = document.getElementsByName("surnameF")[0].value;
+            var phone = document.getElementsByName("phoneF")[0].value;
+            console.log(name);
+            var url = "contact/all?name=" + name+"&surname="+surname+"&phone="+phone;
 
+            function sortConts(callback) {
+                jQuery.ajax({
+                    url: url,
+                    method: 'GET',
+                    success: callback
+                });
+            }
+
+            sortConts(renderCont)
+        }
         getAll(renderCont);
     });
 
@@ -165,10 +205,16 @@
             method: 'POST',
             dataType: 'json',
             data: "id="+item,
-            success: function() {
-                window.location.assign("/");
+            statusCode: {
+                200: function() {
+                    location.href = "/"
+                }
             }
         });
+    }
+
+    function editCont(item) {
+    location.href = "/edit?id="+item;
     }
 
 </script>

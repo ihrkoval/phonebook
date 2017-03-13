@@ -58,7 +58,7 @@ public class UserDaoImpl implements UserDao {
                     max_id = u.getId()+1;
                 }
             }
-            if (user.getId()!=0){
+            if (user.getId()!=null && user.getId()!=0){
                 max_id=user.getId();
             }
             user.setId(max_id);
