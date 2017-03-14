@@ -51,9 +51,22 @@ public class ContactController {
     @RequestParam(value = "adress", required = false) String adress,
     @RequestParam(value = "email", required = false) String email){
 
-        Contact contact = new Contact(id,name,surname,fathername,phone,homenumber,adress,email,userDao.findByLogin(principal.getName()));
+        Contact contact = new Contact(name,surname,fathername,phone,homenumber,adress,email,userDao.findByLogin(principal.getName()));
+        Contact  c = new Contact();
+        if (id!= null){
+            c = contactDao.findById(id);
+        }
+            c.setUser(contact.getUser());
+            c.setName(contact.getName());
+            c.setSurname(contact.getSurname());
+            c.setFathername(contact.getFathername());
+            c.setPhonenumber(contact.getPhonenumber());
+            c.setHomenumber(contact.getHomenumber());
+            c.setEmail(contact.getEmail());
+            c.setAdress(contact.getAdress());
+
         if (new Validator().checkContact(contact).equals("ok")) {
-            contactDao.save(contact);
+            contactDao.save(c);
             return "Contact was added<script>location.href = \"/\"</script>";
         }
         else return new Validator().checkContact(contact);

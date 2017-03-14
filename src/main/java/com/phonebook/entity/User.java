@@ -1,5 +1,7 @@
 package com.phonebook.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.List;
 
@@ -20,7 +22,7 @@ public class User {
     private String password;
     private String name;
 
-    @OneToMany(mappedBy= "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy= "user",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Contact> contacts;
 
     public User(){}

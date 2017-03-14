@@ -29,7 +29,14 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="panel panel-default">
-                <div class="panel-heading">Добавить контакт</div>
+                <div class="panel-heading">
+                    <div class="col-sm-11">
+                    Добавить контакт
+                        </div>
+                    <div class="col-sm-1">
+                        <a href="/logout" class="btn btn-danger" role="button">Logout</a>
+                    </div>
+                </div>
                 <div class="panel-body">
                     <form action="./contact/add" method="post">
                         <div class="panel panel-default">
@@ -50,6 +57,9 @@
                                 <input type="text" class="form-control" name="email" placeholder="е-майл" value="${email}">
                                 <button type="submit" class="btn btn-success" href="/index" value="add">Сохранить</button>
                             </div>
+
+
+
                             </div>
                     </form>
                         </div>

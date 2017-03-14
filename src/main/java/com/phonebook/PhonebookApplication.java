@@ -42,6 +42,7 @@ public class PhonebookApplication{
 		return new ContactDaoImpl();
 	}
 
+	//если в файле с пропертисами датасоурс = jdbc:relique:csv: - тогда создаем файлы для хранения в них БД
 	@Bean
 	public UserDao userDao(@Value("${spring.datasource.url}") String lardiPath) {
 		if (lardiPath.startsWith("jdbc:relique:csv:")){
@@ -60,6 +61,7 @@ public class PhonebookApplication{
 				e.printStackTrace();
 			}
 		}
+
 		return new UserDaoImpl();
 	}
 

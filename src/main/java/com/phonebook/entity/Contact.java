@@ -1,5 +1,7 @@
 package com.phonebook.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 /**
@@ -12,6 +14,7 @@ public class Contact {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     private User user;
 
     private String surname; //(обязательный, минимум 4 символа)
@@ -22,8 +25,8 @@ public class Contact {
     private String adress; //Адрес (не обязательный)
     private String email; //e-mail (не обязательный, общепринятая валидация)
 
-    public Contact(Long id, String name, String surname, String fathername, String phonenumber, String homenumber, String adress, String email, User user) {
-        this.id=id;
+    public Contact( String name, String surname, String fathername, String phonenumber, String homenumber, String adress, String email, User user) {
+        //this.id=id;
         this.name = name;
         this.surname = surname;
         this.fathername = fathername;

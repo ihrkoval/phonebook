@@ -4,6 +4,7 @@ import com.phonebook.dao.ContactDao;
 import com.phonebook.dao.UserDao;
 import com.phonebook.entity.Contact;
 import com.phonebook.entity.User;
+import com.phonebook.utils.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -67,35 +68,27 @@ public class MainController  {
                                  @RequestParam(value = "password") String password,
                                  HttpServletRequest request) {
         ModelAndView reg = new ModelAndView("register");
-
-        if (name.length() < 5){
-            reg.addObject("error", "ФИО меньше 5 символов");
-            return reg;
-        } else
-        if (login.length() < 3 ){
-            reg.addObject("error","Логин  не меньше 3х");
-            return reg;
-        } else
-        if (login.toLowerCase().matches(".*[^a-z].*")){
-            reg.addObject("error","Логин-только английские символы без спецсимволов " + login);
-            return reg;
-        }
-        if (password.length() < 5){
-            reg.addObject("error","Пароль - минимум 5 символов");
-            return reg;
-        } else {
+    //проверяем строки на кол-во символово
+        String isvalide = new Validator().checkUser(name, login, password);
+    //если ошибок нет пытаемся создать нового юзера (при условии что юзера с таким логином нет)
+        if (isvalide == null){
             try{
                 User u = userDao.findByLogin(login);
                 reg.addObject("error","username already exist");
                 return reg;
-            } catch (NoResultException exception){
+            } catch (NullPointerException|NoResultException exception){
                 User user = new User(login,password,name);
                 userDao.save(user);
-                return new ModelAndView("login");
             }
-
-
+            return new ModelAndView("login");
+        } else
+        //если ошибки есть - возвращаем форму регистрации с описанием ошибки
+        {
+            reg.addObject("error",isvalide);
+            return reg;
         }
+
+
 
     }
 
