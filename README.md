@@ -3,7 +3,7 @@
 VMoptions like:
 -Dlardi.conf=C:/TEMP/config.properties
 
----------------*.properties example for MySQL
+---------------*.properties example for MySQL-----------------
 
 spring.datasource.url=jdbc:mysql://localhost:3306/test
 
@@ -27,7 +27,7 @@ spring.mvc.view.suffix=.jsp
 -----------------------------------------------------------------
 
 
----------------*.properties example for CSV
+---------------*.properties example for CSV----------------------
 
 spring.mvc.view.prefix=/WEB-INF/jsp/
 
