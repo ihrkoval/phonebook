@@ -87,8 +87,11 @@ public class ContactDaoImpl implements ContactDao {
         long id = 0;
         try {
             List<String> ids = (List<String>)entityManager.createNativeQuery("SELECT id from contact").getResultList();
-            Collections.sort(ids);
-            id = Long.valueOf(ids.get(ids.size()-1));
+            for (String i : ids){
+                long temp = Long.valueOf(i);
+                if (temp>id)
+                    id=temp;
+            }
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -127,15 +130,18 @@ public class ContactDaoImpl implements ContactDao {
     //сохраняет контакт в файл
     private void saveToFile(Contact contact){
         //если новый контакт - присваиваем ему ИД и пишем в файл
+        System.out.println("NEW CONTACT TRY "+contact.getId()+" "+maxId());
         if (contact.getId()== null || contact.getId() == 0){
             contact.setId(maxId()+1);
             try {
                 String contactFields=contactToString(contact);
                 Files.write(Paths.get(path + "/contact.csv"), contactFields.getBytes(), StandardOpenOption.APPEND);
+                System.out.println("NEW CONTACT "+contact.getId());
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
         }
+
         //если у контакта уже есть ИД - значит редактируем контакт и пишем в файл
         else {
             try {
